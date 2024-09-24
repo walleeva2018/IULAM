@@ -3,13 +3,14 @@ import { collection, getFirestore } from 'firebase/firestore'
 
 // Prod config
 const firebaseConfig = {
-  apiKey: 'AIzaSyAR84yRMSxqodyPoQbyYso0iNo6T--qZ7g',
-  authDomain: 'personal-project-4ac6f.firebaseapp.com',
-  projectId: 'personal-project-4ac6f',
-  storageBucket: 'personal-project-4ac6f.appspot.com',
-  messagingSenderId: '337096134393',
-  appId: '1:337096134393:web:0a45f01c4a88578d839c28',
-}
+  apiKey: "AIzaSyC2US5NnMyc6UMcV5kGrcxPJS46sUpliQc",
+  authDomain: "test-58462.firebaseapp.com",
+  databaseURL: "https://test-58462.firebaseio.com",
+  projectId: "test-58462",
+  storageBucket: "test-58462.appspot.com",
+  messagingSenderId: "137468012672",
+  appId: "1:137468012672:web:9eaf51c1d972012612de65"
+};
 
 // Dev Config
 // const firebaseConfig = {

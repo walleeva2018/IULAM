@@ -14,9 +14,11 @@ const snackStore = useSnacksStore()
 const { loginUser } = storeToRefs(snackStore)
 
 const isRoot = computed(() => (route.fullPath === '/'))
-const isSnacks = computed(() => route.fullPath === '/snacks')
-const isAdmin = computed(() => route.fullPath === '/admin')
-const isLastOrders = computed(() => route.fullPath === '/last-orders')
+const isCurrent = computed(() => route.fullPath === '/current-students')
+const isPastStudent = computed(() => route.fullPath === '/past-students')
+const isTeacher = computed(() => route.fullPath === '/teachers')
+const isCommunity = computed(() => route.fullPath === '/community')
+
 
 async function onLogoutClick() {
   try {
@@ -59,28 +61,28 @@ function formatDate(dateString: string): string {
         <RouterLink
           to="/current-students"
           class="btn btn-ghost normal-case text-xl"
-          :class="{ 'text-primary': isSnacks }"
+          :class="{ 'text-primary': isCurrent }"
         >
           Current Students
         </RouterLink>
         <RouterLink
           to="/past-students"
           class="btn btn-ghost normal-case text-xl"
-          :class="{ 'text-primary': isLastOrders }"
+          :class="{ 'text-primary': isPastStudent }"
         >
           Past Students
         </RouterLink>
         <RouterLink
           to="/teachers"
           class="btn btn-ghost normal-case text-xl"
-          :class="{ 'text-primary': isAdmin }"
+          :class="{ 'text-primary': isTeacher }"
         >
           Teachers
         </RouterLink>
         <RouterLink
           to="/community"
           class="btn btn-ghost normal-case text-xl"
-          :class="{ 'text-primary': isAdmin }"
+          :class="{ 'text-primary': isCommunity }"
         >
           Community
         </RouterLink>

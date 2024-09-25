@@ -10,13 +10,12 @@ const router = createRouter({
       component: () => import('@/views/HomeView.vue'),
     },
     {
-      meta: { requiresAuth: true },
       path: '/current-students',
       name: 'current-students',
-      component: () => import('@/views/SnacksView.vue'),
+      component: () => import('@/views/CurrentStudent.vue'),
     },
     {
-      meta: { requiresAuth: true },
+
       path: '/past-students',
       name: 'past-students',
       component: () => import('@/views/LastOrders.vue'),
@@ -24,11 +23,10 @@ const router = createRouter({
     {
       meta: { requiresAuth: true },
       path: '/teachers',
-      name: 'teacher',
+      name: 'teachers',
       component: () => import('@/views/AdminView.vue'),
     },
     {
-      meta: { requiresAuth: true },
       path: '/community',
       name: 'community',
       component: () => import('@/views/MoneyTable.vue'),

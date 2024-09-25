@@ -93,7 +93,7 @@ await snacksStore.getUser()
 
     <div v-else>
       <p class="text-center font-bold text-warning py-10">
-        Currently No Order History Available
+        Currently No Student History Available
       </p>
     </div>
 

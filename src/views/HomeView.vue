@@ -10,13 +10,11 @@ snacksStore.getUser()
 <template>
   <div class="mx-auto flex-col space-y-2 max-w-5xl flex justify-center items-center h-full">
     <h1 class="text-2xl py-8 ">
-      Go to <RouterLink to="/snacks" class="gray font-mono text-blue-800 mx-3">
-        /snacks
-      </RouterLink> for order
+      Welcome to  IULAM
     </h1>
     <Hero />
     <h1 class="text-xl pt-5 font-bold ">
-      Start Your Day With Motivation !
+      Through training and updating the knowledge of professionals and technicians, we promote and protect breastfeeding and comprehensive early childhood care.
     </h1>
   </div>
 </template>

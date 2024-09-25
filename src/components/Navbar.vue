@@ -57,28 +57,32 @@ function formatDate(dateString: string): string {
           Home
         </RouterLink>
         <RouterLink
-          v-if="user"
-          to="/snacks"
+          to="/current-students"
           class="btn btn-ghost normal-case text-xl"
           :class="{ 'text-primary': isSnacks }"
         >
-          Snacks
+          Current Students
         </RouterLink>
         <RouterLink
-          v-if="user"
-          to="/last-orders"
+          to="/past-students"
           class="btn btn-ghost normal-case text-xl"
           :class="{ 'text-primary': isLastOrders }"
         >
-          Last Orders
+          Past Students
         </RouterLink>
         <RouterLink
-          v-if="loginUser?.isAdmin"
-          to="/admin"
+          to="/teachers"
           class="btn btn-ghost normal-case text-xl"
           :class="{ 'text-primary': isAdmin }"
         >
-          Dashboard
+          Teachers
+        </RouterLink>
+        <RouterLink
+          to="/community"
+          class="btn btn-ghost normal-case text-xl"
+          :class="{ 'text-primary': isAdmin }"
+        >
+          Community
         </RouterLink>
       </div>
       <div class="flex-none">

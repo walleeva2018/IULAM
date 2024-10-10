@@ -87,43 +87,7 @@ function formatDate(dateString: string): string {
           Community
         </RouterLink>
       </div>
-      <div class="flex-none">
-        <div v-if="route.fullPath.includes('/snacks')">
-          <p class="order-text">
-            Last Ordered:
-          </p> <p v-if="loginUser?.lastOrdered" class="date-text">
-            {{ formatDate(loginUser?.lastOrdered) }}
-          </p>
-          <p v-else class="date-text">
-            Never Ordered
-          </p>
-        </div>
-        <RouterLink v-if="!user" to="/signin" class="btn btn-primary">
-          SignIn
-        </RouterLink>
-        <div v-else class="dropdown dropdown-end">
-          <label tabindex="0" class="btn btn-ghost btn-circle avatar">
-            <div class="w-10 rounded-full">
-              <img :src="user?.photoURL || '/no-man.webp'">
-            </div>
-          </label>
-          <ul tabindex="0" class="menu menu-sm dropdown-content mt-2 z-[1] p-2 shadow bg-base-100 rounded-box w-36 space-y-1">
-            <li>
-              <RouterLink to="/about-me" class="justify-between">
-                Profile
-              </RouterLink>
-            </li>
-            <li v-if="loginUser?.isAdmin">
-              <RouterLink to="/admin">
-                Admin
-              </RouterLink>
-            </li>
-            <li @click="onLogoutClick">
-              <a>Logout</a>
-            </li>
-          </ul>
-        </div>
-      </div>
+     
     </div>
   </header>
 </template>

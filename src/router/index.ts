@@ -10,6 +10,7 @@ const router = createRouter({
       component: () => import('@/views/HomeView.vue'),
     },
     {
+      meta: { requiresAuth: true },
       path: '/current-students',
       name: 'current-students',
       component: () => import('@/views/CurrentStudent.vue'),
@@ -58,10 +59,18 @@ const router = createRouter({
   ],
 })
 
+function getCookie(name: string) {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2)
+    return parts?.pop()?.split(';').shift()
+  return null
+}
+
 router.beforeEach(async (to) => {
   if (to.meta.requiresAuth) {
-    const currentUser = await getCurrentUser()
-    if (!currentUser) {
+    const authToken = getCookie('authToken')
+    if (!authToken) {
       return {
         path: '/signin',
       }

@@ -22,32 +22,42 @@ const itemAmount = ref(0)
 const itemId = ref('')
 const isAdding = ref(false)
 
-const { snacksEnabledUsers } = storeToRefs(snacksStore)
+// Dummy data for users
+const dummyUsers = [
+  { id: '1', name: 'Alice', balance: 100, paymentDone: true },
+  { id: '2', name: 'Bob', balance: 50, paymentDone: false },
+  { id: '3', name: 'Charlie', balance: 75, paymentDone: true },
+]
+
+const snacksEnabledUsers = ref(dummyUsers) // Use dummy data
 
 watch(() => props.showModal, (n) => {
   if (n) {
     my_modal_3.value?.showModal()
-  }
-  else {
+  } else {
     emits('closeModal')
     my_modal_3.value?.close()
   }
 }, { immediate: true })
 
 watch(itemId, (n) => {
-  const selectedUser = snacksEnabledUsers.value?.find((usr) => {
-    if (usr.id === n)
-      return true
-    else return false
-  })
+  const selectedUser = snacksEnabledUsers.value?.find((usr) => usr.id === n)
 
-  if (selectedUser)
+  if (selectedUser) {
     itemAmount.value = selectedUser?.balance || 0
+  }
 })
 
 async function addMoney() {
   if (itemId.value) {
     try {
+      const selectedUser = snacksEnabledUsers.value.find((usr) => usr.id === itemId.value)
+
+      if (!selectedUser?.paymentDone) {
+        alert('Payment is not done for this user. Please complete the payment first.');
+        return; // Stop the function if payment is not done
+      }
+
       isAdding.value = true
 
       const db = useFirestore()
@@ -69,20 +79,18 @@ async function addMoney() {
       itemAmount.value = 0
 
       emits('closeModal')
-    }
-    catch (error) {
+    } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error)
+    } finally {
+      isAdding.value = false
     }
-
-    isAdding.value = false
   }
 }
 </script>
 
 <template>
   <div @keydown.esc="$emit('closeModal')">
-    <!-- Open the modal using ID.showModal() method -->
     <dialog id="my_modal_3" ref="my_modal_3" class="modal">
       <form method="dialog" class="modal-box">
         <h3 class="font-bold text-xl py-3">
@@ -109,7 +117,6 @@ async function addMoney() {
           </div>
         </div>
         <div class="modal-action">
-          <!-- if there is a button in form, it will close the modal -->
           <button class="btn btn-error" :disabled="isAdding" @click.prevent="$emit('closeModal')">
             Close
           </button>
@@ -121,3 +128,4 @@ async function addMoney() {
     </dialog>
   </div>
 </template>
+

@@ -32,23 +32,23 @@ function handleEditClick() {
       <div class="card  bg-base-200 space-x-4  p-5">
         <div class="flex space-x-3 justify-around">
           <button class="btn btn-primary" @click="showModal = !showModal">
-            Add Money
+            Payment Management:
           </button>
           <button class="btn btn-primary" @click="toggleUser = !toggleUser">
-            Toggle user
+            Academic Progress
           </button>
           <button class="btn btn-primary" @click="handleEditClick">
-            Edit User
+            Data Analysis
           </button>
         </div>
       </div>
       <div class="card w-130 bg-base-200  p-5 justify-center">
         <div class="flex space-x-5 items-center justify-between">
           <h2 class="card-title">
-            Total Amount
+            Total Students
           </h2>
           <div class="form-control">
-            <p>{{ totalBalance }} BDT</p>
+            <p>440</p>
           </div>
         </div>
       </div>

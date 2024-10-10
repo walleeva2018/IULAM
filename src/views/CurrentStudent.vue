@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import AdminAction from '../components/AdminAction.vue'
 
 // Dummy data
 const courseData = ref([
@@ -49,6 +50,7 @@ const courseData = ref([
 
 <template>
   <div class="container max-w-5xl h-full mx-auto p-5">
+    <AdminAction />
     <h1 class="text-2xl font-bold text-primary mb-4">Current Students</h1>
 
     <div class="overflow-x-auto border rounded-md">

@@ -1,78 +1,47 @@
-<script setup lang="ts">
-import { addDoc, collection } from 'firebase/firestore'
-import { computed, ref, watch } from 'vue'
+<script setup>
+import { ref, watch } from 'vue'
+import { useSnacksStore } from '@/stores/snacksStore'
 import { getCurrentUser, useFirestore } from 'vuefire'
-import { type User, useSnacksStore } from '@/stores/counter'
-import { foodItems } from '@/utils/foodItem'
 
-interface Props {
-  showModal: boolean
-  updatedUser?: User
-}
 
-const props = withDefaults(defineProps<Props>(), {
+
+const props = withDefaults(defineProps(), {
   showModal: false,
   updatedUser: undefined,
 })
 
 const emits = defineEmits(['closeModal'])
 
-const snacksStore = useSnacksStore()
+const { setUser } = useSnacksStore()
 
 const my_modal_1 = ref<HTMLDialogElement | null>(null)
-const itemAmount = ref(0)
-const itemId = ref('')
+const name = ref('')
+const payment = ref(false)
+const balance = ref(0)
 const isAdding = ref(false)
 
 watch(() => props.showModal, (n) => {
   if (n) {
     my_modal_1.value?.showModal()
-  }
-  else {
+    if (props.updatedUser) {
+      name.value = props.updatedUser.name
+      payment.value = props.updatedUser.payment
+      balance.value = props.updatedUser.balance
+    }
+  } else {
     emits('closeModal')
     my_modal_1.value?.close()
   }
 }, { immediate: true })
 
-const selectedItem = computed(() => foodItems.find(item => item.id === itemId.value))
-
-async function addNedItem() {
-  if (selectedItem.value) {
-    if (itemAmount.value >= 0) {
-      try {
-        isAdding.value = true
-        const user = await getCurrentUser()
-        const db = useFirestore()
-
-        const obj = {
-          name: selectedItem.value.name,
-          id: selectedItem.value.id,
-          cost: selectedItem.value.cost,
-          amount: itemAmount.value,
-          is_item_enabled: true,
-        }
-        let url
-        if (props.updatedUser === undefined)
-          url = `snacks-users/${user?.uid}/snacks`
-        else
-          url = `snacks-users/${props.updatedUser.id}/snacks`
-        await addDoc(
-          collection(db, url),
-          obj,
-        )
-
-        snacksStore.getOrders()
-
-        itemId.value = ''
-        itemAmount.value = 0
-
-        emits('closeModal')
-      }
-      catch (error) {
-        console.error(error)
-      }
-    }
-
+async function saveUserData() {
+  try {
+    isAdding.value = true
+    await setUser(name.value, payment.value, balance.value)
+    emits('closeModal')
+  } catch (error) {
+    console.error(error)
+  } finally {
     isAdding.value = false
   }
 }
@@ -80,45 +49,32 @@ async function addNedItem() {
 
 <template>
   <div @keydown.esc="$emit('closeModal')">
-    <!-- Open the modal using ID.showModal() method -->
     <dialog id="my_modal_1" ref="my_modal_1" class="modal">
       <form method="dialog" class="modal-box">
-        <h3 class="font-bold text-xl py-3">
-          Add New Item
-        </h3>
-        <div class="flex space-x-3">
-          <div>
-            <div class="form-control min-w-[300px] w-full max-w-xs">
-              <label class="label">
-                <span class="label-text">Pick the item you want</span>
-              </label>
-              <select v-model="itemId" class="select select-bordered">
-                <option v-for="item in foodItems" :key="item.cost" :value="item.id">
-                  {{ item.name }}
-                </option>
-              </select>
-            </div>
-          </div>
-          <div class="form-control w-full max-w-xs">
-            <label class="label">
-              <span class="label-text">Amount</span>
-            </label>
-            <input v-model="itemAmount" type="number" placeholder="Type here" class="input input-bordered w-full max-w-xs">
-          </div>
+        <h3 class="font-bold text-xl py-3">User Information</h3>
+        <div class="form-control w-full max-w-xs">
+          <label class="label">
+            <span class="label-text">Name</span>
+          </label>
+          <input v-model="name" type="text" placeholder="Enter name" class="input input-bordered w-full max-w-xs">
         </div>
-        <div v-if="itemAmount < 0" class="text-md font-semibold text-center p-5 text-red-600">
-          <p>PLEASE ENTER A VALID AMOUNT</p>
+        <div class="form-control w-full max-w-xs mt-4">
+          <label class="label cursor-pointer">
+            <span class="label-text">Payment Status</span>
+            <input type="checkbox" v-model="payment" class="toggle toggle-primary">
+          </label>
         </div>
-        <div v-else-if="selectedItem" class="text-md font-semibold text-center p-5">
-          <p>{{ itemAmount }} {{ selectedItem.name }} Each Cost {{ selectedItem.cost }}Tk, Total = {{ itemAmount * selectedItem.cost }}Tk</p>
+        <div class="form-control w-full max-w-xs mt-4">
+          <label class="label">
+            <span class="label-text">Balance</span>
+          </label>
+          <input v-model="balance" type="number" placeholder="Enter balance" class="input input-bordered w-full max-w-xs">
         </div>
         <div class="modal-action">
-          <!-- if there is a button in form, it will close the modal -->
-          <button class="btn btn-error" @click.prevent="$emit('closeModal')">
-            Close
-          </button>
-          <button class="btn btn-primary" @click.prevent="addNedItem">
-            Add
+          <button class="btn btn-error" @click.prevent="$emit('closeModal')">Close</button>
+          <button class="btn btn-primary" @click.prevent="saveUserData" :disabled="isAdding">
+            <span v-if="isAdding">Saving...</span>
+            <span v-else>Add</span>
           </button>
         </div>
       </form>

@@ -1,58 +1,51 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import AdminAction from '../components/AdminAction.vue'
+import { ref, onMounted } from "vue";
+import AdminAction from '../components/AdminAction.vue';
+import { useSnacksStore } from '@/stores/counter'
 
-// Dummy data
-const courseData = ref([
-  {
-    courseName: "Computer Science",
-    firstName: "Alice",
-    lastName: "Johnson",
-    foreign: "Yes",
-    dateOfClass: "2024-09-30",
-    month: "September",
-    className: "Intro to Programming",
-    kindOfClass: "Online",
-    duration: 2,
-    amountToPayInU: 2000,
-    amountInForeignCurrency: "50 USD",
-    travelExpenses: 100,
-    idNum: "123456789",
-    birthDate: "1990-05-15",
-    personsInCharge: "Dr. Smith",
-    accountType: "Checking",
-    bankName: "Bank of Example",
-    accountNumber: "00123456789",
-  },
-  {
-    courseName: "Mathematics",
-    firstName: "Bob",
-    lastName: "Smith",
-    foreign: "No",
-    dateOfClass: "2024-10-01",
-    month: "October",
-    className: "Calculus I",
-    kindOfClass: "In-person",
-    duration: 1.5,
-    amountToPayInU: 1500,
-    amountInForeignCurrency: "30 EUR",
-    travelExpenses: 50,
-    idNum: "987654321",
-    birthDate: "1988-03-20",
-    personsInCharge: "Ms. Johnson",
-    accountType: "Savings",
-    bankName: "Example Credit Union",
-    accountNumber: "00987654321",
-  },
-  // Add more entries as needed
-]);
+
+interface UserData {
+  courseName: string;
+  firstName: string;
+  lastName: string;
+  foreign: boolean;
+  dateOfClass: string;  
+  month: string;        
+  className: string;
+  kindOfClass: string;
+  duration: number;     
+  amountToPayInU: number;
+  amountInForeignCurrency: number;
+  travelExpenses: number;
+  idNum: string;
+  birthDate: string;    
+  personsInCharge: string;
+  accountType: string;  
+  bankName: string;
+  accountNumber: string;
+}
+
+const showModal = ref(false);
+const courseData = ref([]); // Reactive array to store fetched data
+const { getUser} = useSnacksStore()
+
+// Fetch data on component mount
+onMounted(async () => {
+  const data = await getUser(); // Call getUser to fetch data
+  if (data) {
+    courseData.value = data; // Update courseData with fetched data
+  }
+});
 </script>
+
 
 <template>
   <div class="container max-w-5xl h-full mx-auto p-5">
+    <!-- Include AdminAction component -->
     <AdminAction />
     <h1 class="text-2xl font-bold text-primary mb-4">Current Students</h1>
 
+    <!-- Table Wrapper -->
     <div class="overflow-x-auto border rounded-md">
       <table class="table table-zebra w-full">
         <!-- Table Head -->
@@ -78,6 +71,7 @@ const courseData = ref([
             <th>Account Number</th>
           </tr>
         </thead>
+        
         <!-- Table Body -->
         <tbody>
           <tr v-for="(entry, idx) in courseData" :key="idx">
@@ -105,6 +99,7 @@ const courseData = ref([
     </div>
   </div>
 </template>
+
 
 <style scoped>
 .table {

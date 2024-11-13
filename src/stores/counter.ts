@@ -1,8 +1,7 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
 import { getCurrentUser, useFirestore } from "vuefire";
-import { collection, doc, getDoc, query } from "@firebase/firestore";
-import { getDocs, setDoc, updateDoc, where , addDoc} from "firebase/firestore";
+import { collection, doc, getDocs, updateDoc, deleteDoc, addDoc } from "firebase/firestore";
 
 export interface Order {
   name: string;
@@ -18,84 +17,90 @@ interface UserData {
   firstName: string;
   lastName: string;
   foreign: boolean;
-  dateOfClass: string;  // or Date if you use Date objects
-  month: string;        // consider using enum if only specific months are allowed
+  dateOfClass: string;  
+  month: string;        
   className: string;
   kindOfClass: string;
-  duration: number;     // assuming duration is in hours or minutes as a number
+  duration: number;     
   amountToPayInU: number;
   amountInForeignCurrency: number;
   travelExpenses: number;
   idNum: string;
-  birthDate: string;    // or Date if you use Date objects
+  birthDate: string;    
   personsInCharge: string;
-  accountType: string;  // consider enum if there are limited account types
+  accountType: string;  
   bankName: string;
   accountNumber: string;
 }
 
-
 export const useSnacksStore = defineStore("current-student", () => {
   const isUserDataFetching = ref(false);
 
-// Updated getUser function
-async function getUser() {
-  isUserDataFetching.value = true;
+  async function getUser() {
+    isUserDataFetching.value = true;
+    const db = useFirestore();
+    const collectionRef = collection(db, "current-student");
 
-  const db = useFirestore();
-  const collectionRef = collection(db, "current-student");
-
-  try {
-    const querySnapshot = await getDocs(collectionRef);
-    const data = querySnapshot.docs.map((doc) => doc.data());
-    
-    // Set fetched data to courseData
-     return data
-  } catch (error) {
-    console.error("Error fetching documents: ", error);
-  } finally {
-    isUserDataFetching.value = false;
+    try {
+      const querySnapshot = await getDocs(collectionRef);
+      const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      return data;
+    } catch (error) {
+      console.error("Error fetching documents: ", error);
+    } finally {
+      isUserDataFetching.value = false;
+    }
   }
-}
-
 
   async function setUser(userData: UserData) {
-    console.log(userData);
     try {
       const db = useFirestore();
       const collectionRef = collection(db, "current-student");
-      
-  
       await addDoc(collectionRef, userData);
       console.log("Document added successfully");
-  
       await getUser();
     } catch (error) {
       console.error("Error adding document: ", error);
     }
   }
-  
 
-  async function updateSnakesOptions(payload: boolean) {
+  async function updateUser(userId: string, updatedData: Partial<UserData>) {
     isUserDataFetching.value = true;
-
     const db = useFirestore();
-    const user = await getCurrentUser();
+    const userDocRef = doc(db, "current-student", userId);
 
-    const url = `/snacks-users/${user?.uid}`;
+    try {
+      await updateDoc(userDocRef, updatedData);
+      console.log("Document updated successfully");
+      await getUser();
+    } catch (error) {
+      console.error("Error updating document: ", error);
+    } finally {
+      isUserDataFetching.value = false;
+    }
+  }
 
-    const docRef = doc(db, url);
+  async function deleteUser(userId: string) {
+    isUserDataFetching.value = true;
+    const db = useFirestore();
+    const userDocRef = doc(db, "current-student", userId);
 
-    // Set the "capital" field of the city 'DC'
-    await updateDoc(docRef, {
-      snacks_enabled: payload,
-    });
-
-    await getUser();
+    try {
+      await deleteDoc(userDocRef);
+      console.log("Document deleted successfully");
+      await getUser();
+    } catch (error) {
+      console.error("Error deleting document: ", error);
+    } finally {
+      isUserDataFetching.value = false;
+    }
   }
 
   return {
+    isUserDataFetching,
     getUser,
     setUser,
+    updateUser,
+    deleteUser,
   };
 });

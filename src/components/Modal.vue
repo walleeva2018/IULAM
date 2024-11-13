@@ -1,6 +1,5 @@
 <script setup>
 import { ref, watch } from 'vue'
-import { useSnacksStore } from '@/stores/snacksStore'
 import { getCurrentUser, useFirestore } from 'vuefire'
 
 

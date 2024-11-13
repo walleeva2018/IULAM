@@ -5,21 +5,6 @@ import { storeToRefs } from 'pinia'
 import { doc, updateDoc } from 'firebase/firestore'
 import { useSnacksStore } from '@/stores/counter'
 
-interface AllItems {
-  name: string
-  id: string
-  snacks_enabled: boolean
-  floor: number
-  balance: number
-  isAdmin?: boolean | undefined
-  orders?: {
-    name: string
-    id: string
-    cost: number
-    amount: number
-    uid: string
-  }[] | undefined
-}
 interface Props {
   showModal: boolean
 }
@@ -28,68 +13,87 @@ const props = withDefaults(defineProps<Props>(), {
   showModal: false,
 })
 
-const emits = defineEmits(['closeModal'])
-
-const snacksStore = useSnacksStore()
+const emits = defineEmits(['closeModal', 'filter'])
 
 const my_modal_3 = ref<HTMLDialogElement | null>(null)
-
 const isAdding = ref(false)
 
-const { allUsers } = storeToRefs(snacksStore)
+const filters = ref({
+  paymentDone: false,
+  courseCompleted: false,
+  averageAge: null as number | null,
+  sortByPlace: '',
+})
 
-watch(() => props.showModal, (n) => {
-  if (n) {
-    my_modal_3.value?.showModal()
-  }
-  else {
-    emits('closeModal')
-    my_modal_3.value?.close()
-  }
-}, { immediate: true })
-
-async function updateSnacksEnabled(item: AllItems) {
-  try {
-    const db = useFirestore()
-
-    const url = `/snacks-users/${item.id}`
-
-    const docRef = doc(db, url)
-
-    await updateDoc(docRef, {
-      snacks_enabled: item.snacks_enabled,
-    })
-    await snacksStore.getUser()
-    await snacksStore.getSnacksEnableUser()
-    await snacksStore.getAllUser()
-  }
-  catch (error) {
-    console.error(error)
-  }
+function applyFilters() {
+ emits('filter', filters)
 }
+
+watch(
+  () => props.showModal,
+  (n) => {
+    if (n) {
+      my_modal_3.value?.showModal()
+    } else {
+      emits('closeModal')
+      my_modal_3.value?.close()
+    }
+  },
+  { immediate: true }
+)
+
+
 </script>
 
 <template>
   <div @keydown.esc="$emit('closeModal')">
-    <dialog id="my_modal_3" ref="my_modal_3" class="modal">
+    <dialog id="my_modal_3" ref="my_modal_3" class="modal large">
       <form method="dialog" class="modal-box">
         <h3 class="font-bold text-xl py-3 border-b mb-4">
-          Enable or Disable order
+          Enable or Disable Order
         </h3>
-        <div class="flex space-x-3">
-          <div class="form-control w-full">
-            <div class="grid grid-cols-2">
-              <div v-for="item in allUsers" :key="item.id" class="flex space-x-2 mb-4">
-                <input v-model="item.snacks_enabled" type="checkbox" class="toggle toggle-primary" @change="updateSnacksEnabled(item)">
-                <p class="font-semibold">
-                  {{ item.name }}
-                </p>
-              </div>
-            </div>
+        
+        <!-- Filtering Options -->
+        <div class="mb-4">
+          <label class="block font-medium mb-2">Filter Options</label>
+          
+          <!-- Payment Status Filter -->
+          <div class="mb-3">
+            <label>
+              <input type="checkbox" v-model="filters.paymentDone" /> Show only payments done
+            </label>
+          </div>
+          
+          <!-- Course Completion Filter -->
+          <div class="mb-3">
+            <label>
+              <input type="checkbox" v-model="filters.courseCompleted" /> Show only courses completed
+            </label>
+          </div>
+          
+          <!-- Average Age Filter -->
+          <div class="mb-3">
+            <label class="block">Average Age of Student</label>
+            <input type="number" v-model="filters.averageAge" placeholder="Enter minimum age" class="input input-bordered w-full" />
+          </div>
+          
+          <!-- Sort by Place Filter -->
+          <div class="mb-3">
+            <label class="block">Sort by Place</label>
+            <select v-model="filters.sortByPlace" class="select select-bordered w-full">
+              <option value="">Select Place</option>
+              <option value="cityA">City A</option>
+              <option value="cityB">City B</option>
+              <!-- Add more options as needed -->
+            </select>
           </div>
         </div>
+        
+        <!-- Apply Filters Button -->
         <div class="modal-action">
-          <!-- if there is a button in form, it will close the modal -->
+          <button type="button" class="btn btn-primary" @click="applyFilters">
+            Apply Filters
+          </button>
           <button class="btn btn-error" :disabled="isAdding" @click.prevent="$emit('closeModal')">
             Close
           </button>
@@ -98,3 +102,4 @@ async function updateSnacksEnabled(item: AllItems) {
     </dialog>
   </div>
 </template>
+

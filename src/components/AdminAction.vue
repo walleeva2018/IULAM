@@ -6,6 +6,11 @@ import ToggleUserModal from './ToggleUserModal.vue'
 import { useSnacksStore } from '@/stores/counter'
 import AddMoneyModal from '@/components/AddMoneyModal.vue'
 
+const props = defineProps<{
+  totalUser: number
+  
+}>()
+
 const snacksStore = useSnacksStore()
 
 const { allUsers } = storeToRefs(snacksStore)
@@ -21,24 +26,28 @@ const totalBalance = computed(() => {
 })
 
 const router = useRouter()
-function handleEditClick() {
-  router.push('/admin/edit')
+function hanldePrint() {
+  window.print()
+}
+
+function applyFilter(filter: any){
+  window.console.log(filter)
 }
 </script>
 
 <template>
   <div>
-    <div class="flex justify-around mt-4">
+    <div class="flex justify-around mt-4 print:hidden">
       <div class="card  bg-base-200 space-x-4  p-5">
         <div class="flex space-x-3 justify-around">
           <button class="btn btn-primary" @click="showModal = !showModal">
-            Payment Management:
+            Add User
           </button>
           <button class="btn btn-primary" @click="toggleUser = !toggleUser">
-            Academic Progress
+            Filter
           </button>
-          <button class="btn btn-primary" @click="handleEditClick">
-            Data Analysis
+          <button class="btn btn-primary" @click="hanldePrint">
+            Print
           </button>
         </div>
       </div>
@@ -48,13 +57,13 @@ function handleEditClick() {
             Total Students
           </h2>
           <div class="form-control">
-            <p>440</p>
+            <p>{{ totalUser }}</p>
           </div>
         </div>
       </div>
     </div>
     <AddMoneyModal :show-modal="showModal" @close-modal="showModal = false" />
-    <ToggleUserModal :show-modal="toggleUser" @close-modal="toggleUser = false" />
+    <ToggleUserModal :show-modal="toggleUser" @close-modal="toggleUser = false" @filter="applyFilter" />
     <div class="divider" />
   </div>
 </template>

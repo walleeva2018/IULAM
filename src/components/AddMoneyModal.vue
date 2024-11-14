@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useSnacksStore } from '@/stores/counter'
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 
 const props = defineProps<{
   showModal: boolean
@@ -72,6 +74,10 @@ async function saveUserData() {
 };
 
     await setUser(userData)
+    toast("User Created Successfully", {
+        autoClose: 2000,
+      });
+
     emits('closeModal')
   } catch (error) {
     console.error(error)

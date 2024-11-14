@@ -107,6 +107,20 @@ export const useSnacksStore = defineStore("current-student", () => {
     }
   }
 
+  async function getPastuser() {
+   
+    const db = useFirestore();
+    const collectionRef = collection(db, "past-student");
+
+    try {
+      const querySnapshot = await getDocs(collectionRef);
+      const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      return data;
+    } catch (error) {
+      console.error("Error fetching documents: ", error);
+    } 
+  }
+
 
   return {
     isUserDataFetching,
@@ -114,6 +128,7 @@ export const useSnacksStore = defineStore("current-student", () => {
     setUser,
     updateUser,
     deleteUser,
-    setPastuser
+    setPastuser,
+    getPastuser,
   };
 });

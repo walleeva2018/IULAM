@@ -19,7 +19,7 @@ const router = createRouter({
 
       path: '/past-students',
       name: 'past-students',
-      component: () => import('@/views/LastOrders.vue'),
+      component: () => import('@/views/PastStudent.vue'),
     },
     {
       meta: { requiresAuth: true },

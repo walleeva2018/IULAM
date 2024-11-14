@@ -59,12 +59,12 @@ const toggleUser=ref(false)
 const filteredData = ref<UserData | null>(null)
 const avgAge = ref(0)
 
-const { getUser, setUser, updateUser, deleteUser , isUserDataFetching, setPastuser } = useSnacksStore();
+const { getUser, setUser, updateUser, deleteUser , isUserDataFetching, setPastuser , getPastuser} = useSnacksStore();
 
 // Fetch data on component mount
 onMounted(async () => {
   isDataFetching.value = true
-  const data = await getUser();
+  const data = await getPastuser();
   if (data) {
     courseData.value = data;
     filteredData.value= data
@@ -98,7 +98,7 @@ async function removeUser(user: UserData) {
         autoClose: 2000,
       });
       isDataFetching.value = true
-  await getUser()
+  await getPastuser()
   isDataFetching.value = false
   isDeleting.value = false
  
@@ -108,7 +108,7 @@ async function removeUser(user: UserData) {
 async function refreshData() {
   avgAge.value = 0
   isDataFetching.value = true
-  const data = await getUser();
+  const data = await getPastuser();
   if (data) {
     courseData.value = data;
     filteredData.value = data;
@@ -168,9 +168,9 @@ function applyFilter(filter: any){
 
 <template>
   <div class="container max-w-5xl h-full mx-auto p-5">
-    <AdminAction :totalUser="courseData?.length"/>
+   
     <div class="flex justify-between items-center mb-4 print:hidden">
-  <h1 class="text-2xl font-bold text-primary">Current Students</h1>
+  <h1 class="text-2xl font-bold text-primary">Past Students</h1>
   <button class="btn btn-primary" @click="toggleUser = !toggleUser">
     Filter & Analytics
   </button>
@@ -296,7 +296,7 @@ function applyFilter(filter: any){
 <span v-if="avgAge!==0"> Average Age : {{ avgAge }}</span> <span v-if="filteredData?.length !== courseData?.length"> Total Filtered Student : {{ filteredData?.length }}</span>
 
     <!-- Table Wrapper -->
-     <div v-if="isUserDataFetching || isDataFetching">
+     <div v-if="isDataFetching">
       <Loader />
      </div>
      
@@ -346,13 +346,6 @@ function applyFilter(filter: any){
             <td v-if="showBankName">{{ entry.bankName }}</td>
             <td class="print:hidden">{{ entry.accountNumber }}</td>
             <!-- Add other fields -->
-            <td class="flex print:hidden">
-              <button class="btn btn-primary btn-sm" @click="editUser(entry)">Edit</button>
-              <button style="background-color: red;" class="btn btn-sm" @click="removeUser(entry)" :disabled="isDeleting">
-                <span v-if="isDeleting">Deleting...</span>
-                <span v-else>Delete</span>
-              </button>
-            </td>
           </tr>
         </tbody>
       </table>

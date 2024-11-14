@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import ToggleUserModal from './ToggleUserModal.vue'
 import { useSnacksStore } from '@/stores/counter'
 import AddMoneyModal from '@/components/AddMoneyModal.vue'
+import AddSvgModal from '@/components/AddSvgModal.vue'
 
 const props = defineProps<{
   totalUser: number
@@ -14,6 +15,7 @@ const props = defineProps<{
 const snacksStore = useSnacksStore()
 
 const { allUsers } = storeToRefs(snacksStore)
+const showCsvModal = ref(false)
 
 const showModal = ref(false)
 
@@ -41,6 +43,9 @@ function hanldePrint() {
           <button class="btn btn-primary" @click="showModal = !showModal">
             Add User
           </button>
+          <button class="btn btn-primary" @click="showCsvModal = !showCsvModal">
+           Add From CSV
+          </button>
         
           <button class="btn btn-primary" @click="hanldePrint">
             Print
@@ -59,6 +64,7 @@ function hanldePrint() {
       </div>
     </div>
     <AddMoneyModal :show-modal="showModal" @close-modal="showModal = false" />
+    <AddSvgModal :show-modal="showCsvModal" @close-modal="showCsvModal = false" />
     
     <div class="divider" />
   </div>

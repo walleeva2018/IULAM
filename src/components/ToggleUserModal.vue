@@ -21,7 +21,7 @@ const isAdding = ref(false)
 const filters = ref({
   paymentDone: false,
   courseCompleted: false,
-  averageAge: null as number | null,
+  averageAge:false,
   sortByPlace: '',
 })
 
@@ -58,24 +58,32 @@ watch(
           <label class="block font-medium mb-2">Filter Options</label>
           
           <!-- Payment Status Filter -->
-          <div class="mb-3">
-            <label>
-              <input type="checkbox" v-model="filters.paymentDone" /> Show only payments done
-            </label>
-          </div>
-          
+
+          <div class="form-control">
+  <label class="cursor-pointer label">
+    <span>only payments done</span>
+    <input v-model="filters.paymentDone" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
           <!-- Course Completion Filter -->
-          <div class="mb-3">
-            <label>
-              <input type="checkbox" v-model="filters.courseCompleted" /> Show only courses completed
-            </label>
-          </div>
-          
-          <!-- Average Age Filter -->
-          <div class="mb-3">
-            <label class="block">Average Age of Student</label>
-            <input type="number" v-model="filters.averageAge" placeholder="Enter minimum age" class="input input-bordered w-full" />
-          </div>
+
+
+          <div class="form-control">
+  <label class="cursor-pointer label">
+    <span>only courses completed</span>
+    <input v-model="filters.courseCompleted" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+
+          <h2> Report </h2>
+
+          <div class="form-control">
+  <label class="cursor-pointer label">
+    <span>Average Age</span>
+    <input v-model="filters.averageAge" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+         
           
           <!-- Sort by Place Filter -->
           <div class="mb-3">

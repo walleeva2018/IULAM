@@ -6,6 +6,7 @@ import EditModal from '@/components/EditModal.vue'
 import Loader from "@/components/Loader.vue";
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
+import ToggleUserModal from '../components/ToggleUserModal.vue'
 
 const showCourseName = ref(true);
 const showFirstName = ref(true);
@@ -53,6 +54,9 @@ const isEditing = ref(false); // Track if editing mode is active
 const currentUser = ref<UserData | null>(null); // Track current user for edit
 const courseData = ref([]); // Reactive array to store fetched data
 const isDataFetching = ref(false)
+const toggleUser=ref(false)
+const filteredData = ref<UserData | null>(null)
+const avgAge = ref(0)
 
 const { getUser, setUser, updateUser, deleteUser , isUserDataFetching } = useSnacksStore();
 
@@ -62,6 +66,7 @@ onMounted(async () => {
   const data = await getUser();
   if (data) {
     courseData.value = data;
+    filteredData.value= data
   }
   isDataFetching.value = false
   
@@ -97,10 +102,12 @@ async function removeUser(id: string) {
 
 // Refresh the data in courseData
 async function refreshData() {
+  avgAge.value = 0
   isDataFetching.value = true
   const data = await getUser();
   if (data) {
     courseData.value = data;
+    filteredData.value = data;
   }
   isDataFetching.value = false
 }
@@ -112,69 +119,177 @@ function resetModal() {
   showModal.value = false;
 }
 
+
+
+
+
+function calculateAverageAge(data: UserData[]): void {
+  if (data.length === 0) {
+    avgAge.value = 0;
+    return;
+  }
+
+  const totalAge = data.value.reduce((sum, user) => {
+    const birthDate = new Date(user.birthDate);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+
+    return sum + age;
+  }, 0);
+  console.log(totalAge)
+
+
+  avgAge.value = totalAge / data.value.length;
+  console.log("Average Age:", avgAge.value);
+}
+
+function applyFilter(filter: any){
+  window.console.log(filter.value)
+  filteredData.value = courseData.value.filter((user: UserData) => {
+    if (filter.value.paymentDone && user.amountToPayInU > 0) {
+      return false;
+    }
+    if (filter.value.courseCompleted && user.className !== 'Completed') {
+      return false;
+    }
+    
+    return true;
+  });
+  if (filter.value.averageAge) {
+         calculateAverageAge(filteredData)
+    }
+
+}
 </script>
 
 <template>
   <div class="container max-w-5xl h-full mx-auto p-5">
     <AdminAction :totalUser="courseData?.length"/>
-    <h1 class="text-2xl font-bold text-primary mb-4 print:hidden">Current Students</h1>
+    <div class="flex justify-between items-center mb-4 print:hidden">
+  <h1 class="text-2xl font-bold text-primary">Current Students</h1>
+  <button class="btn btn-primary" @click="toggleUser = !toggleUser">
+    Filter & Analytics
+  </button>
+  <button class="btn btn-primary" @click="refreshData">
+   Refresh Data
+  </button>
+</div>
+
     <div class="switches mb-4 print:hidden">
     
-  <label>
-    <input type="checkbox" v-model="showCourseName" /> Show Course Name
-  </label>
-  <label>
-    <input type="checkbox" v-model="showFirstName" /> Show First Name
-  </label>
-  <label>
-    <input type="checkbox" v-model="showLastName" /> Show Last Name
-  </label>
-  <label>
-    <input type="checkbox" v-model="showForeign" /> Show Foreign
-  </label>
-  <label>
-    <input type="checkbox" v-model="showDateOfClass" /> Show Date of Class
-  </label>
-  <label>
-    <input type="checkbox" v-model="showMonth" /> Show Month
-  </label>
-  <label>
-    <input type="checkbox" v-model="showClassName" /> Show Name of Class
-  </label>
-  <label>
-    <input type="checkbox" v-model="showKindOfClass" /> Show Kind of Class
-  </label>
-  <label>
-    <input type="checkbox" v-model="showDuration" /> Show Duration (hrs)
-  </label>
-  <label>
-    <input type="checkbox" v-model="showAmountToPayInU" /> Show Amount to Pay in $U
-  </label>
-  <label>
-    <input type="checkbox" v-model="showAmountInForeignCurrency" /> Show Foreign Currency Amount
-  </label>
-  <label>
-    <input type="checkbox" v-model="showTravelExpenses" /> Show Travel Expenses
-  </label>
-  <label>
-    <input type="checkbox" v-model="showIdNum" /> Show ID Num
-  </label>
-  <label>
-    <input type="checkbox" v-model="showBirthDate" /> Show Birth Date
-  </label>
-  <label>
-    <input type="checkbox" v-model="showPersonsInCharge" /> Show Persons in Charge
-  </label>
-  <label>
-    <input type="checkbox" v-model="showAccountType" /> Show Account Type
-  </label>
-  <label>
-    <input type="checkbox" v-model="showBankName" /> Show Bank Name
-  </label>
-  <label>
-    <input type="checkbox" v-model="showAccountNumber" /> Show Account Number
+      <div class="switches mb-4 print:hidden flex flex-wrap gap-2">  
+      <div class="form-control">
+  <label class="cursor-pointer label">
+    <span>Course Name</span>
+    <input v-model="showCourseName" type="checkbox" class="toggle toggle-primary" />
   </label>
 </div>
+<div class="form-control">
+  <label class="cursor-pointer label">
+    <span>First Name</span>
+    <input v-model="showFirstName" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+<div class="form-control">
+  <label class="cursor-pointer label">
+    <span>Last Name</span>
+    <input v-model="showLastName" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+<div class="form-control">
+  <label class="cursor-pointer label">
+    <span>Foreign</span>
+    <input v-model="showForeign" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+<div class="form-control">
+  <label class="cursor-pointer label">
+    <span>Date of Class</span>
+    <input v-model="showDateOfClass" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+<div class="form-control">
+  <label class="cursor-pointer label">
+    <span>Month</span>
+    <input v-model="showMonth" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+<div class="form-control">
+  <label class="cursor-pointer label">
+    <span>Name of Class</span>
+    <input v-model="showClassName" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+<div class="form-control">
+  <label class="cursor-pointer label">
+    <span>Kind of Class</span>
+    <input v-model="showKindOfClass" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+<div class="form-control">
+  <label class="cursor-pointer label">
+    <span>Duration (hrs)</span>
+    <input v-model="showDuration" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+<div class="form-control">
+  <label class="cursor-pointer label">
+    <span>Amount to Pay in $U</span>
+    <input v-model="showAmountToPayInU" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+<div class="form-control">
+  <label class="cursor-pointer label">
+    <span>Foreign Currency Amount</span>
+    <input v-model="showAmountInForeignCurrency" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+<div class="form-control">
+  <label class="cursor-pointer label">
+    <span>Travel Expenses</span>
+    <input v-model="showTravelExpenses" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+<div class="form-control">
+  <label class="cursor-pointer label">
+    <span>ID Num</span>
+    <input v-model="showIdNum" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+<div class="form-control">
+  <label class="cursor-pointer label">
+    <span>Birth Date</span>
+    <input v-model="showBirthDate" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+<div class="form-control">
+  <label class="cursor-pointer label">
+    <span>Persons in Charge</span>
+    <input v-model="showPersonsInCharge" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+<div class="form-control">
+  <label class="cursor-pointer label">
+    <span>Account Type</span>
+    <input v-model="showAccountType" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+<div class="form-control">
+  <label class="cursor-pointer label">
+    <span>Bank Name</span>
+    <input v-model="showBankName" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+<div class="form-control">
+  <label class="cursor-pointer label">
+    <span>Account Number</span>
+    <input v-model="showAccountNumber" type="checkbox" class="toggle toggle-primary" />
+  </label>
+</div>
+</div>
+</div>
+
+<span v-if="avgAge!==0"> Average Age : {{ avgAge }}</span> <span v-if="filteredData.length !== courseData.length"> Total Filtered Student : {{ filteredData.length }}</span>
 
     <!-- Table Wrapper -->
      <div v-if="isUserDataFetching || isDataFetching">
@@ -207,7 +322,7 @@ function resetModal() {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(entry, idx) in courseData" :key="idx">
+          <tr v-for="(entry, idx) in filteredData" :key="idx">
             <td v-if="showCourseName">{{ entry.courseName }}</td>
             <td v-if="showFirstName">{{ entry.firstName }}</td>
             <td v-if="showLastName">{{ entry.lastName }}</td>
@@ -237,6 +352,7 @@ function resetModal() {
     </div>
 
     <EditModal :show-modal="showModal" @close-modal="showModal = false" :user-data="currentUser" @save-user="refreshData" />
+    <ToggleUserModal :show-modal="toggleUser" @close-modal="toggleUser = false" @filter="applyFilter" />
   </div>
 </template>
 
@@ -246,5 +362,19 @@ function resetModal() {
 }
 .modal {
   /* modal styles */
+}
+.inline-checkbox {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 4px;
+}
+
+.label-text {
+  font-size: 0.875rem; /* Smaller font size */
+}
+
+.small-toggle {
+  width: 1.25rem; /* Smaller toggle width */
+  height: 0.75rem; /* Smaller toggle height */
 }
 </style>

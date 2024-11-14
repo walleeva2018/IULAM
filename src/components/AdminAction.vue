@@ -43,9 +43,7 @@ function applyFilter(filter: any){
           <button class="btn btn-primary" @click="showModal = !showModal">
             Add User
           </button>
-          <button class="btn btn-primary" @click="toggleUser = !toggleUser">
-            Filter
-          </button>
+        
           <button class="btn btn-primary" @click="hanldePrint">
             Print
           </button>
@@ -63,7 +61,7 @@ function applyFilter(filter: any){
       </div>
     </div>
     <AddMoneyModal :show-modal="showModal" @close-modal="showModal = false" />
-    <ToggleUserModal :show-modal="toggleUser" @close-modal="toggleUser = false" @filter="applyFilter" />
+    
     <div class="divider" />
   </div>
 </template>

@@ -96,11 +96,24 @@ export const useSnacksStore = defineStore("current-student", () => {
     }
   }
 
+  async function setPastuser(userData: UserData) {
+    try {
+      const db = useFirestore();
+      const collectionRef = collection(db, "past-student");
+      await addDoc(collectionRef, userData);
+      console.log("Document added successfully");
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  }
+
+
   return {
     isUserDataFetching,
     getUser,
     setUser,
     updateUser,
     deleteUser,
+    setPastuser
   };
 });

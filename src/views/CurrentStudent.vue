@@ -289,7 +289,7 @@ function applyFilter(filter: any){
 </div>
 </div>
 
-<span v-if="avgAge!==0"> Average Age : {{ avgAge }}</span> <span v-if="filteredData.length !== courseData.length"> Total Filtered Student : {{ filteredData.length }}</span>
+<span v-if="avgAge!==0"> Average Age : {{ avgAge }}</span> <span v-if="filteredData?.length !== courseData?.length"> Total Filtered Student : {{ filteredData?.length }}</span>
 
     <!-- Table Wrapper -->
      <div v-if="isUserDataFetching || isDataFetching">

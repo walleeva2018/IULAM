@@ -2,8 +2,6 @@
 import { ref, watch } from 'vue'
 import { getCurrentUser, useFirestore } from 'vuefire'
 
-
-
 const props = withDefaults(defineProps(), {
   showModal: false,
   updatedUser: undefined,

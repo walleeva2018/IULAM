@@ -30,9 +30,7 @@ function hanldePrint() {
   window.print()
 }
 
-function applyFilter(filter: any){
-  window.console.log(filter)
-}
+
 </script>
 
 <template>

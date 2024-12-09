@@ -68,6 +68,7 @@ onMounted(async () => {
   if (data) {
     courseData.value = data;
     filteredData.value= data
+    console.log(filteredData.value)
   }
   isDataFetching.value = false
   
@@ -296,7 +297,7 @@ function applyFilter(filter: any){
 <span v-if="avgAge!==0"> Average Age : {{ avgAge }}</span> <span v-if="filteredData?.length !== courseData?.length"> Total Filtered Student : {{ filteredData?.length }}</span>
 
     <!-- Table Wrapper -->
-     <div v-if="isUserDataFetching || isDataFetching">
+     <div v-if="  isDataFetching">
       <Loader />
      </div>
      
@@ -327,24 +328,27 @@ function applyFilter(filter: any){
         </thead>
         <tbody>
           <tr v-for="(entry, idx) in filteredData" :key="idx">
-            <td v-if="showCourseName">{{ entry.courseName }}</td>
-            <td v-if="showFirstName">{{ entry.firstName }}</td>
-            <td v-if="showLastName">{{ entry.lastName }}</td>
-            <td v-if="showForeign">{{ entry.foreign }}</td>
-            <td v-if="showDateOfClass">{{ entry.dateOfClass }}</td>
-            <td v-if="showMonth">{{ entry.month }}</td>
-            <td v-if="showClassName">{{ entry.className }}</td>
-            <td v-if="showKindOfClass">{{ entry.kindOfClass }}</td>
-            <td v-if="showDuration">{{ entry.duration }}</td>
-            <td v-if="showAmountToPayInU">{{ entry.amountToPayInU }}</td>
-            <td v-if="showAmountInForeignCurrency">{{ entry.amountInForeignCurrency }}</td>
-            <td v-if="showTravelExpenses">{{ entry.travelExpenses }}</td>
-            <td v-if="showIdNum">{{ entry.idNum }}</td>
-            <td v-if="showBirthDate">{{ entry.birthDate }}</td>
-            <td v-if="showPersonsInCharge">{{ entry.personsInCharge }}</td>
-            <td v-if="showAccountType">{{ entry.accountType }}</td>
-            <td v-if="showBankName">{{ entry.bankName }}</td>
-            <td class="print:hidden">{{ entry.accountNumber }}</td>
+       
+                <td v-if="showCourseName">{{ entry.courseName }}</td>
+                <td v-if="showFirstName">{{ entry.firstName }}</td>
+                <td v-if="showLastName">{{ entry.lastName }}</td>
+                <td v-if="showForeign">{{ entry.foreign }}</td>
+                <td v-if="showDateOfClass">{{ entry.dateOfClass }}</td>
+                <td v-if="showMonth">{{ entry.month }}</td>
+                <td v-if="showClassName">{{ entry.className }}</td>
+                <td v-if="showKindOfClass">{{ entry.kindOfClass }}</td>
+                <td v-if="showDuration">{{ entry.duration }}</td>
+                <td v-if="showAmountToPayInU">{{ entry.amountToPayInU }}</td>
+                <td v-if="showAmountInForeignCurrency">{{ entry.amountInForeignCurrency }}</td>
+                <td v-if="showTravelExpenses">{{ entry.travelExpenses }}</td>
+                <td v-if="showIdNum">{{ entry.idNum }}</td>
+                <td v-if="showBirthDate">{{ entry.birthDate }}</td>
+                <td v-if="showPersonsInCharge">{{ entry.personsInCharge }}</td>
+                <td v-if="showAccountType">{{ entry.accountType }}</td>
+                <td v-if="showBankName">{{ entry.bankName }}</td>
+                <td v-if="showAccountNumber">{{ entry.accountNumber }}</td>
+
+
             <!-- Add other fields -->
             <td class="flex print:hidden">
               <button class="btn btn-primary btn-sm" @click="editUser(entry)">Edit</button>

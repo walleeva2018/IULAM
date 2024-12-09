@@ -3,8 +3,7 @@ import { ref, watch } from 'vue'
 import { useSnacksStore } from '@/stores/counter'
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
-
-
+import Papa from 'papaparse';
 
 const props = defineProps<{
   showModal: boolean
@@ -15,7 +14,7 @@ const emits = defineEmits(['closeModal', 'saveUser'])
 const my_modal_1 = ref<HTMLDialogElement | null>(null)
 const isAdding = ref(false)
 const jsonInput = ref('')  // To hold the JSON data from the text area
-const {setUser} = useSnacksStore()
+const { setUser } = useSnacksStore()
 
 watch(
   () => props.showModal,
@@ -33,13 +32,18 @@ watch(
 function handleJSONInput() {
   try {
     const jsonData = JSON.parse(jsonInput.value);
-    console.log("Parsed JSON Data:", jsonData);
+
+    const filteredData = Object.fromEntries(
+      Object.entries(jsonData).filter(([key, value]) => key.trim() !== "" && value.trim() !== "")
+    );
+
+    console.log("Parsed and Filtered JSON Data:", filteredData);
   } catch (error) {
     toast.error("Invalid JSON format.");
   }
 }
 
-// Handle JSON file upload
+// Handle JSON or CSV file upload
 function handleFileUpload(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0];
   if (file) {
@@ -47,12 +51,34 @@ function handleFileUpload(event: Event) {
     reader.onload = (e) => {
       const content = e.target?.result;
       if (content) {
-        try {
-          const jsonData = JSON.parse(content as string);
-          console.log("Uploaded JSON Data:", jsonData);
-          jsonInput.value = JSON.stringify(jsonData, null, 2); // Display in text area
-        } catch (error) {
-          toast.error("Invalid JSON file format.");
+        if (file.type === "application/json") {
+          try {
+            const jsonData = JSON.parse(content as string);
+            const mappedJsonData = jsonData.map((item: any) => mapKeys(item));
+            console.log("Uploaded and Mapped JSON Data:", mappedJsonData);
+            jsonInput.value = JSON.stringify(mappedJsonData, null, 2); // Display in text area
+          } catch (error) {
+            toast.error("Invalid JSON file format.");
+          }
+        } else if (file.type === "text/csv") {
+          Papa.parse(content as string, {
+            header: true,
+            complete: (results) => {
+              const filteredData = results.data.map((row: any) =>
+                Object.fromEntries(
+                  Object.entries(row).filter(([key, value]) => key.trim() !== "" && value.trim() !== "")
+                )
+              );
+              const mappedCsvData = filteredData.map((item: any) => mapKeys(item));
+              console.log("Uploaded and Mapped CSV Data:", mappedCsvData);
+              jsonInput.value = JSON.stringify(mappedCsvData, null, 2); // Display in text area
+            },
+            error: (error) => {
+              toast.error("Invalid CSV file format.");
+            }
+          });
+        } else {
+          toast.error("Unsupported file format. Please upload a JSON or CSV file.");
         }
       }
     };
@@ -60,13 +86,40 @@ function handleFileUpload(event: Event) {
   }
 }
 
+// Key mapping function
+function mapKeys(data: any): any {
+  const keyMapping: { [key: string]: string } = {
+    "Course Name": "courseName",
+    "First Name": "firstName",
+    "Last Name": "lastName",
+    "Foreign": "foreign",
+    "Date of Class": "dateOfClass",
+    "Month": "month",
+    "Name of Class": "className",
+    "Kind of Class": "kindOfClass",
+    "Duration (hrs)": "duration",
+    "Amount to Pay in $U": "amountToPayInU",
+    "Foreign Currency Amount": "amountInForeignCurrency",
+    "Travel expenses": "travelExpenses",
+    "ID Num": "idNum",
+    "Birth Date": "birthDate",
+    "Persons in Charge": "personsInCharge",
+    "Account Type": "accountType",
+    "Bank Name": "bankName",
+    "Account Number": "accountNumber"
+  };
+
+  return Object.fromEntries(
+    Object.entries(data).map(([key, value]) => [keyMapping[key.trim()] || key.trim(), value])
+  );
+}
+
+
 async function addUser() {
   if (!jsonInput.value) {
     toast.error("No JSON data provided.");
     return;
   }
-
-  console.log('coma coam')
 
   try {
     const users = JSON.parse(jsonInput.value);
@@ -94,17 +147,12 @@ async function addUser() {
 </script>
 
 <template>
-  <dialog id="my_modal_1" ref="my_modal_1" class="modal">
+  <dialog id="my_modal_1" ref="my_modal_1" class="modal" @click.self="$emit('closeModal')">
     <form method="dialog" class="modal-box">
       <h3 class="font-bold text-xl py-3">Edit User Information</h3>
       
       <!-- Instructions with Hyperlink -->
-      <p class="mb-3">
-        Please ensure your JSON data follows the correct format. 
-        <a href="https://csvjson.com/csv2json" target="_blank" class="text-blue-500 underline">
-          Click here for the JSON format guide.
-        </a>
-      </p>
+    
 
       <!-- Text Area for JSON Input -->
       <textarea 
@@ -113,12 +161,10 @@ async function addUser() {
         class="textarea textarea-bordered w-full mb-4" 
         rows="6">
       </textarea>
-      <button class="btn btn-secondary mb-4" @click.prevent="handleJSONInput">
-        Parse JSON Data
-      </button>
+    
 
-      <!-- File Upload for JSON -->
-      <input type="file" accept=".json" @change="handleFileUpload" class="mb-4" />
+      <!-- File Upload for JSON or CSV -->
+      <input type="file" accept=".json,.csv" @change="handleFileUpload" class="mb-4" />
       
       <div class="modal-action">
         <button class="btn btn-error" @click.prevent="emits('closeModal')">Close</button>

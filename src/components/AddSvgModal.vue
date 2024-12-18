@@ -51,27 +51,30 @@ function handleFileUpload(event: Event) {
     reader.onload = (e) => {
       const content = e.target?.result;
       if (content) {
+        const decodedContent = new TextDecoder("utf-8").decode(new TextEncoder().encode(content as string)); // Ensure UTF-8 encoding
+
         if (file.type === "application/json") {
           try {
-            const jsonData = JSON.parse(content as string);
-            const mappedJsonData = jsonData.map((item: any) => mapKeys(item));
-            console.log("Uploaded and Mapped JSON Data:", mappedJsonData);
-            jsonInput.value = JSON.stringify(mappedJsonData, null, 2); // Display in text area
+            const jsonData = JSON.parse(decodedContent);
+            const sanitizedJsonData = jsonData.map((item: any) => sanitizeKeysAndValues(mapKeys(item)));
+            console.log("Uploaded and Sanitized JSON Data:", sanitizedJsonData);
+            jsonInput.value = JSON.stringify(sanitizedJsonData, null, 2); // Display in text area
           } catch (error) {
             toast.error("Invalid JSON file format.");
           }
         } else if (file.type === "text/csv") {
-          Papa.parse(content as string, {
+          Papa.parse(decodedContent, {
             header: true,
+            skipEmptyLines: true, // Automatically skips empty lines
             complete: (results) => {
-              const filteredData = results.data.map((row: any) =>
-                Object.fromEntries(
-                  Object.entries(row).filter(([key, value]) => key.trim() !== "" && value.trim() !== "")
-                )
+              // Filter out rows where all values are empty or contain invalid placeholders
+              const filteredData = results.data.filter((row: any) =>
+                Object.values(row).some((value) => isValidValue(value))
               );
-              const mappedCsvData = filteredData.map((item: any) => mapKeys(item));
-              console.log("Uploaded and Mapped CSV Data:", mappedCsvData);
-              jsonInput.value = JSON.stringify(mappedCsvData, null, 2); // Display in text area
+
+              const sanitizedCsvData = filteredData.map((item: any) => sanitizeKeysAndValues(mapKeys(item)));
+              console.log("Uploaded and Sanitized CSV Data:", sanitizedCsvData);
+              jsonInput.value = JSON.stringify(sanitizedCsvData, null, 2); // Display in text area
             },
             error: (error) => {
               toast.error("Invalid CSV file format.");
@@ -82,9 +85,30 @@ function handleFileUpload(event: Event) {
         }
       }
     };
-    reader.readAsText(file);
+    reader.readAsText(file, "utf-8"); // Specify UTF-8 encoding
   }
 }
+
+// Utility function to sanitize keys and values
+function sanitizeKeysAndValues(data: any): any {
+  return Object.fromEntries(
+    Object.entries(data)
+      .filter(([key, value]) => key.trim() !== "" && key.trim().startsWith("_") === false && isValidValue(value)) // Filter out invalid fields
+      .map(([key, value]) => [
+        key.replace(/[^\x20-\x7E]/g, ""), // Remove non-ASCII characters from keys
+        typeof value === "string" ? value.replace(/[^\x20-\x7E]/g, "").trim() : value // Remove non-ASCII characters and trim strings
+      ])
+  );
+}
+
+// Utility function to check if a value is valid
+function isValidValue(value: any): boolean {
+  if (typeof value !== "string") return true; // Non-string values are considered valid
+  const invalidPlaceholders = ["#REFI", "#REF!", "", "null", "undefined"]; // Define invalid placeholders
+  return !invalidPlaceholders.includes(value.trim());
+}
+
+
 
 // Key mapping function
 function mapKeys(data: any): any {

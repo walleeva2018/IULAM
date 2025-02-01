@@ -3,7 +3,6 @@ import { storeToRefs } from 'pinia'
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Loader from '@/components/Loader.vue'
-import AdminEdit from '@/components/AdminEdit.vue'
 import { useSnacksStore } from '@/stores/counter'
 
 const snacksStore = useSnacksStore()
@@ -21,7 +20,6 @@ onMounted(async () => {
 <template>
   <div class="container max-w-5xl h-full mx-auto">
     <Suspense>
-      <AdminEdit />
       <template #fallback>
         <div>
           <Loader />

@@ -11,26 +11,32 @@ const router = createRouter({
     },
     {
       meta: { requiresAuth: true },
+      path: '/current-teachers',
+      name: 'current-teachers',
+      component: () => import('@/views/CurrentTeachers.vue'),
+    },
+    {
+
+      path: '/past-teachers',
+      name: 'past-teachers',
+      component: () => import('@/views/PastTeachers.vue'),
+    },
+    {
+      meta: { requiresAuth: true },
       path: '/current-students',
       name: 'current-students',
-      component: () => import('@/views/CurrentStudent.vue'),
+      component: () => import('@/views/CurrentStudents.vue'),
     },
     {
 
       path: '/past-students',
       name: 'past-students',
-      component: () => import('@/views/PastStudent.vue'),
-    },
-    {
-      meta: { requiresAuth: true },
-      path: '/teachers',
-      name: 'teachers',
-      component: () => import('@/views/AdminView.vue'),
+      component: () => import('@/views/PastStudents.vue'),
     },
     {
       path: '/community',
       name: 'community',
-      component: () => import('@/views/MoneyTable.vue'),
+      component: () => import('@/views/CommunityView.vue'),
     },
     {
       meta: { requiresAuth: true },

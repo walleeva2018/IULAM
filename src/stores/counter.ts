@@ -33,6 +33,36 @@ interface UserData {
   accountNumber: string;
 }
 
+interface StudentData {
+  id: string;
+  courseName: string;
+  lastName: string;
+  firstName: string;
+  email: string;
+  idNumber: string;
+  mobilePhone: string;
+  dateOfBirth: string;
+  address: string;
+  country: string;
+  city: string;
+  occupation: string;
+  workplace: string;
+  attendanceMode: 'Online' | 'In-Person';
+  previousTraining: boolean;
+  paymentType: 'Cash' | 'Financed';
+  paymentMethod: 'Bank' | 'PayPal' | 'MercadoPago' | 'WesternUnion';
+  trainingPrice: number;
+  discounts: number;
+  discountConcept: string;
+  commission: number;
+  paymentAmount: number;
+  amountConcept: string;
+  paymentDate: string;
+  paymentMonthYear: string;
+  balanceDue: number;
+  paymentReceipt: string;
+}
+
 export const useSnacksStore = defineStore("current-student", () => {
   const isUserDataFetching = ref(false);
 
@@ -52,10 +82,38 @@ export const useSnacksStore = defineStore("current-student", () => {
     }
   }
 
+  async function getStudents() {
+    isUserDataFetching.value = true;
+    const db = useFirestore();
+    const collectionRef = collection(db, "current-student-real");
+
+    try {
+      const querySnapshot = await getDocs(collectionRef);
+      const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      return data;
+    } catch (error) {
+      console.error("Error fetching documents: ", error);
+    } finally {
+      isUserDataFetching.value = false;
+    }
+  }
+
   async function setUser(userData: UserData) {
     try {
       const db = useFirestore();
       const collectionRef = collection(db, "current-student");
+      await addDoc(collectionRef, userData);
+      console.log("Document added successfully");
+      await getUser();
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  }
+
+  async function setUserStudent(userData: StudentData) {
+    try {
+      const db = useFirestore();
+      const collectionRef = collection(db, "current-student-real");
       await addDoc(collectionRef, userData);
       console.log("Document added successfully");
       await getUser();
@@ -126,6 +184,8 @@ export const useSnacksStore = defineStore("current-student", () => {
     isUserDataFetching,
     getUser,
     setUser,
+    setUserStudent,
+    getStudents,
     updateUser,
     deleteUser,
     setPastuser,

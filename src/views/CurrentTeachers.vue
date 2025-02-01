@@ -81,14 +81,6 @@ function editUser(user: UserData) {
   showModal.value = true;
 }
 
-// Save changes after editing a user
-async function saveUser() {
-  if (currentUser.value) {
-    await updateUser(currentUser.value.idNum, currentUser.value);
-    await refreshData();
-    resetModal();
-  }
-}
 
 // Delete a user by id
 async function removeUser(user: UserData) {
@@ -171,7 +163,7 @@ function applyFilter(filter: any){
   <div class="container max-w-5xl h-full mx-auto p-5">
     <AdminAction :totalUser="courseData?.length"/>
     <div class="flex justify-between items-center mb-4 print:hidden">
-  <h1 class="text-2xl font-bold text-primary">Current Students</h1>
+  <h1 class="text-2xl font-bold text-primary">Current Teachers</h1>
   <button class="btn btn-primary" @click="toggleUser = !toggleUser">
     Filter & Analytics
   </button>
@@ -294,7 +286,7 @@ function applyFilter(filter: any){
 </div>
 </div>
 
-<span v-if="avgAge!==0"> Average Age : {{ avgAge }}</span> <span v-if="filteredData?.length !== courseData?.length"> Total Filtered Student : {{ filteredData?.length }}</span>
+<span v-if="avgAge!==0"> Average Age : {{ avgAge }}</span> <span v-if="filteredData?.length !== courseData?.length"> Total Filtered Teacher : {{ filteredData?.length }}</span>
 
     <!-- Table Wrapper -->
      <div v-if="  isDataFetching">

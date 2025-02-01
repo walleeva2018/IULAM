@@ -1,50 +1,17 @@
 <script setup lang="ts">
-import { useCurrentUser } from 'vuefire'
-import { getAuth, signOut } from 'firebase/auth'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { computed } from 'vue'
-import { storeToRefs } from 'pinia'
-import { useSnacksStore } from '@/stores/counter'
 
-const user = useCurrentUser()
-const router = useRouter()
 const route = useRoute()
-const snackStore = useSnacksStore()
 
-const { loginUser } = storeToRefs(snackStore)
 
 const isRoot = computed(() => (route.fullPath === '/'))
-const isCurrent = computed(() => route.fullPath === '/current-students')
+const isCurrent = computed(() => route.fullPath === '/current-teachers')
+const isPastTeacher = computed(() => route.fullPath === '/past-teachers')
+const isCurrentStudent = computed(() => route.fullPath === '/current-students')
 const isPastStudent = computed(() => route.fullPath === '/past-students')
-const isTeacher = computed(() => route.fullPath === '/teachers')
 const isCommunity = computed(() => route.fullPath === '/community')
 
-
-async function onLogoutClick() {
-  try {
-    const auth = getAuth()
-    await signOut(auth)
-
-    snackStore.resetStore()
-    router.push('/')
-  }
-  catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error)
-  }
-}
-
-function formatDate(dateString: string): string {
-  const currentDate = new Date(dateString)
-
-  const options: Intl.DateTimeFormatOptions = {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }
-  return currentDate.toLocaleDateString('en-US', options)
-}
 </script>
 
 <template>
@@ -59,9 +26,23 @@ function formatDate(dateString: string): string {
           Home
         </RouterLink>
         <RouterLink
-          to="/current-students"
+          to="/current-teachers"
           class="btn btn-ghost normal-case text-xl"
           :class="{ 'text-primary': isCurrent }"
+        >
+          Current Teachers
+        </RouterLink>
+        <RouterLink
+          to="/past-teachers"
+          class="btn btn-ghost normal-case text-xl"
+          :class="{ 'text-primary': isPastTeacher }"
+        >
+          Past Teachers
+        </RouterLink>
+        <RouterLink
+          to="/current-students"
+          class="btn btn-ghost normal-case text-xl"
+          :class="{ 'text-primary': isCurrentStudent }"
         >
           Current Students
         </RouterLink>
@@ -72,13 +53,7 @@ function formatDate(dateString: string): string {
         >
           Past Students
         </RouterLink>
-        <RouterLink
-          to="/teachers"
-          class="btn btn-ghost normal-case text-xl"
-          :class="{ 'text-primary': isTeacher }"
-        >
-          Teachers
-        </RouterLink>
+
         <RouterLink
           to="/community"
           class="btn btn-ghost normal-case text-xl"
